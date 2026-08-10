@@ -20,6 +20,10 @@
                         <flux:sidebar.item icon="users" :href="route('staff.index')" :current="request()->routeIs('staff.*')" wire:navigate>
                             {{ __('Staff') }}
                         </flux:sidebar.item>
+
+                        <flux:sidebar.item icon="currency-dollar" :href="route('bank-withdrawals.index')" :current="request()->routeIs('bank-withdrawals.*')" wire:navigate>
+                            {{ __('Bank Withdrawals') }}
+                        </flux:sidebar.item>
                     @endcan
                 </flux:sidebar.group>
             </flux:sidebar.nav>
