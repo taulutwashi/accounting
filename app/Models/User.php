@@ -75,4 +75,19 @@ class User extends Authenticatable implements PasskeyUser
     {
         return $this->role === 'staff';
     }
+
+    public function allocations()
+    {
+        return $this->hasMany(StaffAllocation::class, 'staff_id');
+    }
+
+    public function expenses()
+    {
+        return $this->hasMany(Expense::class, 'staff_id');
+    }
+
+    public function getBalanceAttribute()
+    {
+        return $this->allocations()->sum('amount') - $this->expenses()->sum('amount');
+    }
 }

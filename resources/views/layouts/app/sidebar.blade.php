@@ -24,7 +24,15 @@
                         <flux:sidebar.item icon="currency-dollar" :href="route('bank-withdrawals.index')" :current="request()->routeIs('bank-withdrawals.*')" wire:navigate>
                             {{ __('Bank Withdrawals') }}
                         </flux:sidebar.item>
+                        
+                        <flux:sidebar.item icon="wallet" :href="route('staff-allocations.index')" :current="request()->routeIs('staff-allocations.*')" wire:navigate>
+                            {{ __('Staff Balances') }}
+                        </flux:sidebar.item>
                     @endcan
+
+                    <flux:sidebar.item icon="receipt-percent" :href="route('my-expenses.index')" :current="request()->routeIs('my-expenses.*')" wire:navigate>
+                        {{ __('My Expenses') }}
+                    </flux:sidebar.item>
                 </flux:sidebar.group>
             </flux:sidebar.nav>
         

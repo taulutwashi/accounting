@@ -14,7 +14,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         Route::livewire('bank-withdrawals', 'bank-withdrawals.index')->name('bank-withdrawals.index');
         Route::livewire('bank-withdrawals/create', 'bank-withdrawals.create')->name('bank-withdrawals.create');
+
+        Route::livewire('staff-allocations', 'staff-allocations.index')->name('staff-allocations.index');
+        Route::livewire('staff-allocations/create', 'staff-allocations.create')->name('staff-allocations.create');
+        Route::livewire('staff-allocations/{staff}', 'staff-allocations.show')->name('staff-allocations.show');
     });
+
+    Route::livewire('my-expenses', 'my-expenses.index')->name('my-expenses.index');
+    Route::livewire('my-expenses/create', 'my-expenses.create')->name('my-expenses.create');
 });
 
 require __DIR__.'/settings.php';
