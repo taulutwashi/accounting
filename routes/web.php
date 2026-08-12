@@ -18,6 +18,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::livewire('staff-allocations', 'staff-allocations.index')->name('staff-allocations.index');
         Route::livewire('staff-allocations/create', 'staff-allocations.create')->name('staff-allocations.create');
         Route::livewire('staff-allocations/{staff}', 'staff-allocations.show')->name('staff-allocations.show');
+
+        Route::livewire('expense-types', 'expense-types.index')->name('expense-types.index');
+        Route::livewire('expense-types/create', 'expense-types.create')->name('expense-types.create');
+        Route::livewire('expense-types/{expenseType}/edit', 'expense-types.edit')->name('expense-types.edit');
+
+        Route::livewire('expense-stages', 'expense-stages.index')->name('expense-stages.index');
+        Route::livewire('expense-stages/create', 'expense-stages.create')->name('expense-stages.create');
+        Route::livewire('expense-stages/{expenseStage}/edit', 'expense-stages.edit')->name('expense-stages.edit');
     });
 
     Route::livewire('my-expenses', 'my-expenses.index')->name('my-expenses.index');

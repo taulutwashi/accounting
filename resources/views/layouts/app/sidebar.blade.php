@@ -28,6 +28,15 @@
                         <flux:sidebar.item icon="wallet" :href="route('staff-allocations.index')" :current="request()->routeIs('staff-allocations.*')" wire:navigate>
                             {{ __('Staff Balances') }}
                         </flux:sidebar.item>
+
+                        <flux:sidebar.group :heading="__('Expense Settings')" expandable class="mt-4">
+                            <flux:sidebar.item icon="tag" :href="route('expense-types.index')" :current="request()->routeIs('expense-types.*')" wire:navigate>
+                                {{ __('Expense Types') }}
+                            </flux:sidebar.item>
+                            <flux:sidebar.item icon="adjustments-horizontal" :href="route('expense-stages.index')" :current="request()->routeIs('expense-stages.*')" wire:navigate>
+                                {{ __('Expense Stages') }}
+                            </flux:sidebar.item>
+                        </flux:sidebar.group>
                     @endcan
 
                     <flux:sidebar.item icon="receipt-percent" :href="route('my-expenses.index')" :current="request()->routeIs('my-expenses.*')" wire:navigate>
