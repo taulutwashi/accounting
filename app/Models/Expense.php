@@ -7,12 +7,31 @@ use Illuminate\Database\Eloquent\Model;
 class Expense extends Model
 {
     protected $fillable = [
+        'receipt_no',
         'staff_id',
+        'supplier_id',
+        'expense_type_id',
+        'expense_stage_id',
         'amount',
-        'purpose',
+        'material',
+        'description',
         'spent_at',
-        'notes',
     ];
+
+    public function supplier()
+    {
+        return $this->belongsTo(Supplier::class, 'supplier_id');
+    }
+
+    public function type()
+    {
+        return $this->belongsTo(ExpenseType::class, 'expense_type_id');
+    }
+
+    public function stage()
+    {
+        return $this->belongsTo(ExpenseStage::class, 'expense_stage_id');
+    }
 
     protected function casts(): array
     {

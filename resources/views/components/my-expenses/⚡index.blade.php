@@ -16,19 +16,21 @@ new class extends Component
                 'date' => $item->allocated_at,
                 'amount' => $item->amount,
                 'description' => 'Funds Received from Admin',
-                'notes' => $item->notes,
+                'material' => null,
+                'receipt_no' => null,
                 'created_at' => $item->created_at,
             ];
         });
 
         // Get expenses
-        $expenses = $user->expenses()->get()->map(function ($item) {
+        $expenses = $user->expenses()->with(['supplier', 'type', 'stage'])->get()->map(function ($item) {
             return [
                 'type' => 'expense',
                 'date' => $item->spent_at,
                 'amount' => -$item->amount,
-                'description' => $item->purpose,
-                'notes' => $item->notes,
+                'description' => $item->description,
+                'material' => $item->material,
+                'receipt_no' => $item->receipt_no,
                 'created_at' => $item->created_at,
             ];
         });
@@ -82,7 +84,7 @@ new class extends Component
         <flux:table.columns>
             <flux:table.column>Date</flux:table.column>
             <flux:table.column>Type</flux:table.column>
-            <flux:table.column>Description</flux:table.column>
+            <flux:table.column>Details</flux:table.column>
             <flux:table.column>Amount</flux:table.column>
         </flux:table.columns>
 
@@ -98,9 +100,16 @@ new class extends Component
                         @endif
                     </flux:table.cell>
                     <flux:table.cell>
-                        <div class="font-medium text-zinc-900 dark:text-white">{{ $entry['description'] }}</div>
-                        @if($entry['notes'])
-                            <div class="text-xs text-zinc-500 mt-1">{{ $entry['notes'] }}</div>
+                        @if($entry['type'] === 'allocation')
+                            <div class="font-medium text-zinc-900 dark:text-white">{{ $entry['description'] }}</div>
+                        @else
+                            <div class="font-medium text-zinc-900 dark:text-white">{{ $entry['material'] }}</div>
+                            <div class="text-xs text-zinc-500 mt-1">
+                                Receipt: {{ $entry['receipt_no'] }}
+                                @if($entry['description'])
+                                    | {{ str()->limit($entry['description'], 50) }}
+                                @endif
+                            </div>
                         @endif
                     </flux:table.cell>
                     <flux:table.cell>
