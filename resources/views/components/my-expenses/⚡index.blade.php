@@ -1,10 +1,14 @@
 <?php
 
 use Livewire\Component;
+use Livewire\WithPagination;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 new class extends Component
 {
+    use WithPagination;
+
     public function with(): array
     {
         $user = Auth::user();
@@ -42,8 +46,18 @@ new class extends Component
             })
             ->values();
 
+        $page = $this->getPage();
+        $perPage = 10;
+        $paginatedLedger = new LengthAwarePaginator(
+            $ledger->forPage($page, $perPage),
+            $ledger->count(),
+            $perPage,
+            $page,
+            ['path' => request()->url(), 'query' => request()->query()]
+        );
+
         return [
-            'ledger' => $ledger,
+            'ledger' => $paginatedLedger,
             'allocated' => $user->allocations()->sum('amount'),
             'spent' => $user->expenses()->sum('amount'),
             'balance' => $user->balance,
@@ -125,4 +139,8 @@ new class extends Component
             @endforelse
         </flux:table.rows>
     </flux:table>
+    
+    <div class="mt-6">
+        {{ $ledger->links() }}
+    </div>
 </div>
