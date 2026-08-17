@@ -26,6 +26,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::livewire('expense-stages', 'expense-stages.index')->name('expense-stages.index');
         Route::livewire('expense-stages/create', 'expense-stages.create')->name('expense-stages.create');
         Route::livewire('expense-stages/{expenseStage}/edit', 'expense-stages.edit')->name('expense-stages.edit');
+
+        Route::livewire('suppliers', 'suppliers.index')->name('suppliers.index');
+        Route::livewire('suppliers/create', 'suppliers.create')->name('suppliers.create');
+        Route::livewire('suppliers/{supplier}/edit', 'suppliers.edit')->name('suppliers.edit');
     });
 
     Route::livewire('my-expenses', 'my-expenses.index')->name('my-expenses.index');
