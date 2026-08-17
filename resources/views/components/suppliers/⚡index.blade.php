@@ -1,11 +1,14 @@
 <?php
 
 use Livewire\Component;
+use Livewire\WithPagination;
 use App\Models\Supplier;
 use Illuminate\Support\Facades\Gate;
 
 new class extends Component
 {
+    use WithPagination;
+
     public function mount()
     {
         Gate::authorize('admin');
@@ -20,7 +23,7 @@ new class extends Component
     public function with(): array
     {
         return [
-            'suppliers' => Supplier::latest()->get(),
+            'suppliers' => Supplier::latest()->paginate(10),
         ];
     }
 };
@@ -57,4 +60,8 @@ new class extends Component
             @endforeach
         </flux:table.rows>
     </flux:table>
+
+    <div class="mt-6">
+        {{ $suppliers->links() }}
+    </div>
 </div>

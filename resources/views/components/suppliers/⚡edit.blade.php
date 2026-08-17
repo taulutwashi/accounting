@@ -12,6 +12,8 @@ new class extends Component
     public string $email = '';
     public string $phone = '';
     public string $address = '';
+    public string $cr_number = '';
+    public string $vat_number = '';
 
     public function mount(Supplier $supplier)
     {
@@ -22,6 +24,8 @@ new class extends Component
         $this->email = $supplier->email ?? '';
         $this->phone = $supplier->phone ?? '';
         $this->address = $supplier->address ?? '';
+        $this->cr_number = $supplier->cr_number ?? '';
+        $this->vat_number = $supplier->vat_number ?? '';
     }
 
     public function save()
@@ -33,6 +37,8 @@ new class extends Component
             'email' => ['nullable', 'email', 'max:255'],
             'phone' => ['nullable', 'string', 'max:255'],
             'address' => ['nullable', 'string'],
+            'cr_number' => ['nullable', 'string', 'max:255'],
+            'vat_number' => ['nullable', 'string', 'max:255'],
         ]);
 
         $this->supplier->update($validated);
@@ -53,8 +59,14 @@ new class extends Component
 
     <form wire:submit="save" class="max-w-xl space-y-6">
         <flux:input wire:model="name" label="Name" placeholder="e.g. Acme Corp" required />
-        <flux:input wire:model="email" type="email" label="Email" placeholder="contact@acme.com" />
-        <flux:input wire:model="phone" label="Phone" placeholder="+1 234 567 8900" />
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <flux:input wire:model="cr_number" label="CR Number" placeholder="Commercial Registration Number" />
+            <flux:input wire:model="vat_number" label="VAT Number" placeholder="Value Added Tax Number" />
+            <flux:input wire:model="email" type="email" label="Email" placeholder="contact@acme.com" />
+            <flux:input wire:model="phone" label="Phone" placeholder="+1 234 567 8900" />
+        </div>
+        
         <flux:textarea wire:model="address" label="Address" placeholder="123 Business St..." />
 
         <div class="flex gap-2">

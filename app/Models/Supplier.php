@@ -15,5 +15,7 @@ class Supplier extends Model
         'email',
         'phone',
         'address',
+        'cr_number',
+        'vat_number',
     ];
 }
