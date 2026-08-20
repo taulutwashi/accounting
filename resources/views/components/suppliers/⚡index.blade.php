@@ -11,12 +11,12 @@ new class extends Component
 
     public function mount()
     {
-        Gate::authorize('admin');
+       // Gate::authorize('admin');
     }
 
     public function delete(Supplier $supplier)
     {
-        Gate::authorize('admin');
+       // Gate::authorize('admin');
         $supplier->delete();
     }
 

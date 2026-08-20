@@ -17,7 +17,7 @@ new class extends Component
 
     public function mount(Supplier $supplier)
     {
-        Gate::authorize('admin');
+       // Gate::authorize('admin');
         
         $this->supplier = $supplier;
         $this->name = $supplier->name;
@@ -30,7 +30,7 @@ new class extends Component
 
     public function save()
     {
-        Gate::authorize('admin');
+       // Gate::authorize('admin');
         
         $validated = $this->validate([
             'name' => ['required', 'string', 'max:255'],

@@ -15,12 +15,12 @@ new class extends Component
 
     public function mount()
     {
-        Gate::authorize('admin');
+      //  Gate::authorize('admin');
     }
 
     public function save()
     {
-        Gate::authorize('admin');
+       // Gate::authorize('admin');
         
         $validated = $this->validate([
             'name' => ['required', 'string', 'max:255'],
