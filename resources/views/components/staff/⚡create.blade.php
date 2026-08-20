@@ -11,6 +11,9 @@ new class extends Component
     #[Validate('required|string|max:255')]
     public string $name = '';
 
+    #[Validate('nullable|string|max:255')]
+    public ?string $designation = null;
+
     #[Validate('required|string|email|max:255|unique:users')]
     public string $email = '';
 
@@ -30,6 +33,7 @@ new class extends Component
 
         User::create([
             'name' => $this->name,
+            'designation' => $this->designation,
             'email' => $this->email,
             'password' => Hash::make($this->password),
             'role' => 'staff',
@@ -51,6 +55,7 @@ new class extends Component
 
     <form wire:submit="save" class="max-w-xl space-y-6">
         <flux:input wire:model="name" label="Name" placeholder="John Doe" />
+        <flux:input wire:model="designation" label="Designation" placeholder="e.g. Senior Accountant" />
         <flux:input wire:model="email" type="email" label="Email address" placeholder="john@example.com" />
         <flux:input wire:model="password" type="password" label="Password" />
 

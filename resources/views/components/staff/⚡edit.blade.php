@@ -11,6 +11,7 @@ new class extends Component
     public User $user;
 
     public string $name = '';
+    public ?string $designation = null;
     public string $email = '';
     public string $password = '';
 
@@ -20,6 +21,7 @@ new class extends Component
         
         $this->user = $user;
         $this->name = $user->name;
+        $this->designation = $user->designation;
         $this->email = $user->email;
     }
 
@@ -29,11 +31,13 @@ new class extends Component
         
         $validated = $this->validate([
             'name' => ['required', 'string', 'max:255'],
+            'designation' => ['nullable', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users')->ignore($this->user->id)],
             'password' => ['nullable', 'string', 'min:8'],
         ]);
 
         $this->user->name = $this->name;
+        $this->user->designation = $this->designation;
         $this->user->email = $this->email;
         
         if (! empty($this->password)) {
@@ -58,6 +62,7 @@ new class extends Component
 
     <form wire:submit="save" class="max-w-xl space-y-6">
         <flux:input wire:model="name" label="Name" placeholder="John Doe" />
+        <flux:input wire:model="designation" label="Designation" placeholder="e.g. Senior Accountant" />
         <flux:input wire:model="email" type="email" label="Email address" placeholder="john@example.com" />
         <flux:input wire:model="password" type="password" label="Password (leave blank to keep current)" />
 
