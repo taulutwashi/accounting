@@ -9,6 +9,13 @@ new class extends Component
 {
     use WithPagination;
 
+    public string $search = '';
+
+    public function updatedSearch(): void
+    {
+        $this->resetPage();
+    }
+
     public function with(): array
     {
         $user = Auth::user();
@@ -22,6 +29,9 @@ new class extends Component
                 'description' => 'Funds Received from Admin',
                 'material' => null,
                 'receipt_no' => null,
+                'supplier_name' => null,
+                'expense_type' => null,
+                'expense_stage' => null,
                 'created_at' => $item->created_at,
             ];
         });
@@ -35,12 +45,30 @@ new class extends Component
                 'description' => $item->description,
                 'material' => $item->material,
                 'receipt_no' => $item->receipt_no,
+                'supplier_name' => $item->supplier?->name,
+                'expense_type' => $item->type?->name,
+                'expense_stage' => $item->stage?->name,
                 'created_at' => $item->created_at,
             ];
         });
 
         // Combine and sort
         $ledger = $allocations->concat($expenses)
+            ->filter(function ($item) {
+                if (trim($this->search) === '') {
+                    return true;
+                }
+                
+                $search = strtolower(trim($this->search));
+                return str_contains(strtolower($item['description'] ?? ''), $search) ||
+                       str_contains(strtolower($item['material'] ?? ''), $search) ||
+                       str_contains(strtolower($item['receipt_no'] ?? ''), $search) ||
+                       str_contains(strtolower($item['supplier_name'] ?? ''), $search) ||
+                       str_contains(strtolower($item['expense_type'] ?? ''), $search) ||
+                       str_contains(strtolower($item['expense_stage'] ?? ''), $search) ||
+                       str_contains(strtolower($item['type']), $search) ||
+                       str_contains((string)abs($item['amount']), $search);
+            })
             ->sortByDesc(function ($item) {
                 return $item['date']->format('Y-m-d') . '-' . $item['created_at']->timestamp;
             })
@@ -94,53 +122,85 @@ new class extends Component
 
     <flux:heading size="lg" class="mb-4">Transaction History</flux:heading>
 
-    <flux:table>
-        <flux:table.columns>
-            <flux:table.column>Date</flux:table.column>
-            <flux:table.column>Type</flux:table.column>
-            <flux:table.column>Details</flux:table.column>
-            <flux:table.column>Amount</flux:table.column>
-        </flux:table.columns>
+    <div class="overflow-hidden rounded-lg border border-zinc-200 bg-white shadow-xs dark:border-zinc-700 dark:bg-zinc-900">
+        <div class="flex justify-end border-b border-zinc-200 px-3 py-2.5 dark:border-zinc-700">
+            <flux:input
+                wire:model.live.debounce.300ms="search"
+                icon="magnifying-glass"
+                placeholder="Search history…"
+                aria-label="Search history"
+                size="sm"
+                clearable
+                class="w-full sm:w-72"
+            />
+        </div>
+        <div class="overflow-x-auto">
+            <table class="min-w-full border-collapse text-xs">
+                <thead class="bg-zinc-50 text-zinc-600 dark:bg-zinc-800/80 dark:text-zinc-300">
+                    <tr>
+                        <th scope="col" class="w-10 border-r border-b border-zinc-200 px-2 py-2 text-center font-semibold dark:border-zinc-700">#</th>
+                        <th scope="col" class="w-24 border-r border-b border-zinc-200 px-3 py-2 text-left font-semibold dark:border-zinc-700">Date of Expense</th>
+                        <th scope="col" class="w-24 border-r border-b border-zinc-200 px-3 py-2 text-left font-semibold dark:border-zinc-700">Type</th>
+                        <th scope="col" class="w-28 border-r border-b border-zinc-200 px-3 py-2 text-left font-semibold dark:border-zinc-700">Receipt No.</th>
+                        <th scope="col" class="w-32 border-r border-b border-zinc-200 px-3 py-2 text-left font-semibold dark:border-zinc-700">Material</th>
+                        <th scope="col" class="border-r border-b border-zinc-200 px-3 py-2 text-left font-semibold dark:border-zinc-700">Description</th>
+                        <th scope="col" class="w-32 border-r border-b border-zinc-200 px-3 py-2 text-left font-semibold dark:border-zinc-700">Supplier</th>
+                        <th scope="col" class="w-32 border-r border-b border-zinc-200 px-3 py-2 text-left font-semibold dark:border-zinc-700">Expense Type</th>
+                        <th scope="col" class="w-32 border-r border-b border-zinc-200 px-3 py-2 text-left font-semibold dark:border-zinc-700">Expense Stage</th>
+                        <th scope="col" class="w-28 border-b border-zinc-200 px-3 py-2 text-right font-semibold dark:border-zinc-700">Amount Spent</th>
+                    </tr>
+                </thead>
 
-        <flux:table.rows>
-            @forelse ($ledger as $entry)
-                <flux:table.row>
-                    <flux:table.cell>{{ $entry['date']->format('M d, Y') }}</flux:table.cell>
-                    <flux:table.cell>
-                        @if($entry['type'] === 'allocation')
-                            <flux:badge color="green" size="sm">Funds Received</flux:badge>
-                        @else
-                            <flux:badge color="red" size="sm">Expense</flux:badge>
-                        @endif
-                    </flux:table.cell>
-                    <flux:table.cell>
-                        @if($entry['type'] === 'allocation')
-                            <div class="font-medium text-zinc-900 dark:text-white">{{ $entry['description'] }}</div>
-                        @else
-                            <div class="font-medium text-zinc-900 dark:text-white">{{ $entry['material'] }}</div>
-                            <div class="text-xs text-zinc-500 mt-1">
-                                Receipt: {{ $entry['receipt_no'] }}
-                                @if($entry['description'])
-                                    | {{ str()->limit($entry['description'], 50) }}
+                <tbody class="divide-y divide-zinc-200 text-zinc-700 dark:divide-zinc-700 dark:text-zinc-200">
+                    @forelse ($ledger as $entry)
+                        <tr class="transition-colors hover:bg-zinc-50/70 dark:hover:bg-zinc-800/50">
+                            <td class="border-r border-zinc-200 px-2 py-1.5 text-center text-zinc-500 tabular-nums dark:border-zinc-700 dark:text-zinc-400">
+                                {{ $ledger->firstItem() + $loop->index }}
+                            </td>
+                            <td class="border-r border-zinc-200 px-3 py-1.5 font-medium text-zinc-900 dark:border-zinc-700 dark:text-white">
+                                {{ $entry['date']->format('M d, Y') }}
+                            </td>
+                            <td class="border-r border-zinc-200 px-3 py-1.5 text-zinc-500 dark:border-zinc-700 dark:text-zinc-400">
+                                @if($entry['type'] === 'allocation')
+                                    <flux:badge color="green" size="sm">Allocation</flux:badge>
+                                @else
+                                    <flux:badge color="red" size="sm">Expense</flux:badge>
                                 @endif
-                            </div>
-                        @endif
-                    </flux:table.cell>
-                    <flux:table.cell>
-                        <span class="font-medium {{ $entry['amount'] > 0 ? 'text-emerald-600' : 'text-red-500' }}">
-                            {{ $entry['amount'] > 0 ? '+' : '' }}${{ number_format(abs($entry['amount']), 2) }}
-                        </span>
-                    </flux:table.cell>
-                </flux:table.row>
-            @empty
-                <flux:table.row>
-                    <flux:table.cell colspan="4" class="text-center text-zinc-500 py-6">No transactions found.</flux:table.cell>
-                </flux:table.row>
-            @endforelse
-        </flux:table.rows>
-    </flux:table>
-    
-    <div class="mt-6">
-        {{ $ledger->links() }}
+                            </td>
+                            <td class="border-r border-zinc-200 px-3 py-1.5 text-zinc-500 dark:border-zinc-700 dark:text-zinc-400">
+                                {{ $entry['receipt_no'] ?? '-' }}
+                            </td>
+                            <td class="border-r border-zinc-200 px-3 py-1.5 text-zinc-500 dark:border-zinc-700 dark:text-zinc-400">
+                                {{ $entry['material'] ?? '-' }}
+                            </td>
+                            <td class="border-r border-zinc-200 px-3 py-1.5 text-zinc-500 dark:border-zinc-700 dark:text-zinc-400">
+                                {{ $entry['description'] ?? '-' }}
+                            </td>
+                            <td class="border-r border-zinc-200 px-3 py-1.5 text-zinc-500 dark:border-zinc-700 dark:text-zinc-400">
+                                {{ $entry['supplier_name'] ?? '-' }}
+                            </td>
+                            <td class="border-r border-zinc-200 px-3 py-1.5 text-zinc-500 dark:border-zinc-700 dark:text-zinc-400">
+                                {{ $entry['expense_type'] ?? '-' }}
+                            </td>
+                            <td class="border-r border-zinc-200 px-3 py-1.5 text-zinc-500 dark:border-zinc-700 dark:text-zinc-400">
+                                {{ $entry['expense_stage'] ?? '-' }}
+                            </td>
+                            <td class="px-3 py-1.5 text-right text-zinc-500 dark:text-zinc-400">
+                                <span class="font-medium {{ $entry['amount'] > 0 ? 'text-emerald-600' : 'text-red-500' }}">
+                                    {{ $entry['amount'] > 0 ? '+' : '' }}${{ number_format(abs($entry['amount']), 2) }}
+                                </span>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="10" class="px-3 py-8 text-center text-sm text-zinc-500 dark:text-zinc-400">
+                                No transactions found.
+                            </td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+        <flux:pagination :paginator="$ledger" class="border-zinc-200 px-3 py-2.5 dark:border-zinc-700" />
     </div>
 </div>
