@@ -24,7 +24,7 @@ new class extends Component
     public function with(): array
     {
         // Get all staff members with their allocations and expenses
-        $staffMembers = User::where('role', 'staff')
+        $staffMembers = User::whereIn('role', ['admin', 'staff'])
             ->when(
                 trim($this->search) !== '',
                 fn ($query) => $query->where(function ($q) {

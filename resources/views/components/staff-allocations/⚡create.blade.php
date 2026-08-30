@@ -33,7 +33,7 @@ new class extends Component
     public function with(): array
     {
         return [
-            'staffMembers' => User::where('role', 'staff')->get(),
+            'staffMembers' => User::whereIn('role', ['admin', 'staff'])->get(),
         ];
     }
 
@@ -44,8 +44,8 @@ new class extends Component
 
         // Ensure the selected user is actually staff
         $staff = User::findOrFail($this->staff_id);
-        if ($staff->role !== 'staff') {
-            $this->addError('staff_id', 'Selected user must be a staff member.');
+        if (!in_array($staff->role, ['admin', 'staff'])) {
+            $this->addError('staff_id', 'Selected user must be an admin or staff member.');
             return;
         }
 
